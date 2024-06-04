@@ -2,10 +2,60 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
+	//read in the params from the command line
+	//first one will be the mode
+	mode := os.Args[1]
+	//second one will be the graph file
+	graphFile := os.Args[2]
+	//the third one is conditional
+	//if mode is "verify" then the third one will be the vertices
+	//if mode is "serial" then the third one will be the k
+	//if mode is "parallel" then the third one will be the k
+	//if mode is "parallel" then the fourth one will be the p
+	var vertices []int
+	var k int
+	var p int
+	if mode == "verify" {
+		//get vertices from file
+		vertFile := os.Args[3]
+		vertices = ReadIntegersFromFile(vertFile)
+	}
+	if mode == "serial" || mode == "parallel" {
+		//get k from command line
+		k, _ = strconv.Atoi(os.Args[3])
+		p, _ = strconv.Atoi(os.Args[4])
+	}
+
+	//read in the graph from the file
+	graph := ReadGraphFromFile(graphFile)
+	//run the appropriate function
+	if mode == "verify" {
+		res := VerifyClique(graph, vertices)
+		if res {
+			fmt.Println("The vertices form a clique.")
+		} else {
+			fmt.Println("The vertices do not form a clique.")
+		}
+	} else if mode == "serial" {
+		cliques := EnumerateCliquesSerial(graph, k)
+		fmt.Println("Cliques of size", k, "are:")
+		for _, clique := range cliques {
+			fmt.Println(clique)
+		}
+	} else if mode == "parallel" {
+		cliques := EnumerateCliquesParallel(graph, k, p)
+		fmt.Println("Cliques of size", k, "are:")
+		for _, clique := range cliques {
+			fmt.Println(clique)
+		}
+	} else {
+		fmt.Println("Invalid mode. Please use 'verify', 'serial', or 'parallel'.")
+	}
 }
 
 /*
