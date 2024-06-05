@@ -1,0 +1,17 @@
+#pseudocode for running Clique Enumeration in parallel
+function EnumerateCliquesParallel(graph, k, numProcs):
+    var cliques [][]int
+    subgraphs := GetKSubgraphs(k, len(graph))
+
+    results := []chan int
+
+    for p in numProcs:
+        currentSubset := cliques[numProcs*p : numProcs*(p+1)]
+        go VerifyCliques(currentSubset, results)
+
+    for p in numProcs:
+        newCliques := get from results channel
+        cliques.append(newCliques)
+
+    return cliques
+    
